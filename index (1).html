@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kamu kemana sih? (sebuah buku)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Figtree:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#240510;--bg2:#4a0b19;--page:#561020;--line:#8a2a3d;--ink:#f6e3e0;--soft:#d9a9b0;--hot:#ff6b81;--font:'Figtree',system-ui,sans-serif;--disp:'DM Serif Display',Georgia,serif;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#240510;--ink:#f6e3e0}}
+:root[data-theme="dark"]{--bg:#240510;--ink:#f6e3e0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:radial-gradient(circle at 50% 0,#4a0b19,var(--bg) 70%);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;overflow:hidden;user-select:none;-webkit-user-select:none}
+.stage{height:100%;display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 10px 8px}
+.book{position:relative;flex:1;min-height:0;width:min(100%,480px);perspective:1800px;touch-action:pan-y}
+.book::before{content:"";position:absolute;inset:0;border-radius:4px 14px 14px 4px;box-shadow:3px 3px 0 #3b0915,6px 6px 0 #2a050f,0 18px 40px #000b}
+.leaf{position:absolute;inset:0;transform-origin:left center;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.55,0,.2,1),opacity .2s}
+.leaf.flipped{transform:rotateY(-180deg);opacity:0;pointer-events:none;transition:transform .9s cubic-bezier(.55,0,.2,1),opacity .2s .7s}
+.front,.back{position:absolute;inset:0;border-radius:4px 14px 14px 4px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.front{background:var(--page)}
+.front::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0008,transparent 7%);pointer-events:none}
+.back{transform:rotateY(180deg);background:repeating-linear-gradient(0deg,#4a0b19 0 27px,#531222 27px 28px)}
+.pg{position:absolute;inset:0;padding:26px 20px 40px 26px;display:flex;flex-direction:column;justify-content:center;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.no{position:absolute;bottom:10px;right:16px;font-size:12px;color:var(--soft);z-index:2}
+h1,h2{font-family:var(--disp);font-weight:400;line-height:1.02;margin:0 0 12px}
+h1{font-size:clamp(46px,14vw,66px)}
+h2{font-size:clamp(30px,9vw,42px)}
+p{margin:0 0 10px;color:var(--soft)}
+button{font:inherit;cursor:pointer;border:0;border-radius:999px;padding:14px 22px;min-height:50px;font-weight:800;background:var(--hot);color:#2e0610}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+/* sampul */
+.cover .front{background:linear-gradient(145deg,#7a1428,#46091a);border:2px solid #b8566a}
+.cover .pg{text-align:center;align-items:center;inset:12px;border:1px solid #b8566a;border-radius:2px 8px 8px 2px;padding:22px}
+.cover .orn{font-size:34px;margin-bottom:14px}
+
+/* 404 */
+.p404 .front{background:radial-gradient(circle at 70% 20%,#8a1230,#3a0714 65%)}
+.err{font-family:var(--disp);font-size:clamp(130px,44vw,200px);line-height:.8;color:transparent;-webkit-text-stroke:2px var(--hot);margin:0 0 14px;animation:gl 4s infinite}
+@keyframes gl{0%,92%,100%{transform:none;text-shadow:none}94%{transform:translateX(-4px);text-shadow:4px 0 #fff3}96%{transform:translateX(5px);text-shadow:-4px 0 #ff6b8188}}
+.p404 .row button{width:100%}
+
+/* loading: terminal */
+.plog .front{background:#1c030b}
+.plog .pg{font-family:ui-monospace,Menlo,Consolas,monospace}
+.plog h2{font-family:var(--disp)}
+.log{font-size:14px;color:#ffb3c0;min-height:140px}
+.log div{margin-bottom:6px}
+.bar{height:16px;border-radius:99px;background:#4a0b19;border:1px solid var(--line);overflow:hidden;margin:14px 0 8px}
+.bar i{display:block;height:100%;width:0;background:var(--hot);transition:width .6s}
+#load{color:var(--ink);font-weight:700;font-size:15px}
+
+/* pertanyaan */
+.pq .front{background:linear-gradient(180deg,#5e1224,#4a0b19)}
+.q{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.q button{border-radius:18px;text-align:left;background:#6d1a2c;color:var(--ink);border:1px solid var(--line);padding:16px;font-weight:700;font-size:17px;min-height:64px}
+.q button b{display:block;color:#ffc2cc;font-size:15px;margin-top:6px;font-weight:500}
+
+/* chat */
+.pchat .front{background:#2c0610}
+.pchat .pg{padding:0 0 38px 8px;justify-content:flex-start}
+.ch{display:flex;align-items:center;gap:12px;padding:20px 16px 12px 22px;background:#4a0b19;border-bottom:1px solid var(--line)}
+.av{width:44px;height:44px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-weight:800;font-size:20px}
+.ch b{display:block;line-height:1.2}.ch small{color:var(--soft)}
+.msgs{display:flex;flex-direction:column;gap:9px;padding:16px 16px 10px 22px;flex:1}
+.m{align-self:flex-end;background:var(--hot);color:#2e0610;padding:9px 15px;border-radius:18px 18px 4px 18px;max-width:80%;font-weight:600;opacity:0;transform:translateY(8px);transition:.35s}
+.show{opacity:1!important;transform:none!important}
+.t{align-self:flex-start;background:#561020;padding:11px 16px;border-radius:18px 18px 18px 4px;display:flex;gap:5px;opacity:0;transition:.35s}
+.t span{width:8px;height:8px;border-radius:50%;background:var(--soft);animation:b 1.2s infinite}
+.t span:nth-child(2){animation-delay:.2s}.t span:nth-child(3){animation-delay:.4s}
+@keyframes b{50%{transform:translateY(-5px);opacity:.4}}
+.seen{align-self:flex-end;font-size:12px;color:var(--soft);opacity:0;transition:.35s}
+
+/* poster */
+.pposter .front{background:#f1d9d4}
+.pposter .front::after{background:linear-gradient(90deg,#0004,transparent 7%)}
+.pposter .pg{color:#4a0b19}
+.pposter h2{color:#5a0f1e;font-size:clamp(34px,10.5vw,48px);border-top:5px solid #5a0f1e;border-bottom:5px solid #5a0f1e;padding:10px 0;text-align:center}
+.pposter dt{font-weight:800;margin-top:12px;color:#8a1230;font-size:14px}
+.pposter dd{margin:2px 0 0;color:#4a0b19;font-size:17px}
+.pposter .no{color:#8a2a3d}
+.stamp{position:absolute;top:18px;right:14px;border:3px solid #c2334d;color:#c2334d;font-weight:800;padding:2px 10px;transform:rotate(12deg);border-radius:6px;font-size:18px;background:#f1d9d4cc}
+
+/* voting */
+.pvote .front{background:#e8a9b3}
+.pvote .pg{color:#3a0714}
+.pvote h2{color:#4a0b19}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;border-radius:16px;background:#4a0b19;color:var(--ink);font-size:17px;min-height:58px}
+.opt.on{background:#fff;color:#4a0b19;outline:3px solid #4a0b19}
+.res{display:none;margin-top:10px;color:#3a0714;font-weight:600}
+.pvote .no{color:#6d1a2c}
+
+/* penutup */
+.pend .front{background:radial-gradient(circle at 50% 100%,#8a1230,#2e0610 70%)}
+.pend .pg{text-align:center;align-items:center}
+.pend h2{font-size:clamp(42px,13vw,60px)}
+#endrow{flex-direction:column;align-items:stretch;width:100%;min-height:150px;justify-content:flex-start}
+#endrow button{width:100%}
+
+/* navigasi */
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;width:min(100%,480px)}
+.nav button{width:54px;height:54px;min-height:0;padding:0;font-size:28px;line-height:1;border-radius:50%}
+.nav button:disabled{opacity:.3}
+.dots{display:flex;gap:7px;align-items:center}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line);transition:.3s}
+.dots i.on{background:var(--hot);width:22px;border-radius:99px}
+
+.toasts{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);display:flex;flex-direction:column;gap:8px;z-index:50;pointer-events:none;align-items:center}
+.toast{background:#3a0714f2;border:1px solid var(--line);border-radius:16px;padding:11px 16px;font-size:14px;box-shadow:0 8px 24px #0009;animation:in .3s;max-width:380px;width:100%}
+@keyframes in{from{transform:translateY(-14px);opacity:0}}
+.pop{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
+.pop div{background:var(--page);border:1px solid var(--line);border-radius:22px;padding:24px;max-width:320px;text-align:center}
+.heart{position:fixed;bottom:-30px;font-size:28px;animation:up 3s linear forwards;z-index:55;pointer-events:none}
+@keyframes up{to{transform:translateY(-110vh) rotate(25deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.leaf,.leaf.flipped{transition-duration:.01s!important;transition-delay:0s!important}.t span,.toast,.heart,.err{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="stage">
+  <div class="book" id="book">
+
+    <div class="leaf cover"><div class="front"><div class="pg">
+      <div class="orn" aria-hidden="true">🍷</div>
+      <p style="margin-bottom:20px">sebuah buku kecil untuk seseorang</p>
+      <h1>Kamu kemana sih?</h1>
+      <p style="margin:6px 0 28px">Isinya cuma pertanyaan, tebakan, dan satu permintaan di halaman terakhir.</p>
+      <button id="open" style="width:100%">Buka bukunya</button>
+      <p style="margin-top:18px;font-size:14px">Geser halaman ke kiri, atau tap panah di bawah.</p>
+    </div></div><div class="back"></div></div>
+
+    <div class="leaf p404"><div class="front"><div class="pg">
+      <div class="err" aria-hidden="true">404</div>
+      <h2>Orang yang dicari tidak ditemukan.</h2>
+      <p>Terakhir terlihat: pas lagi seru-serunya ngobrol, terus tiba-tiba hening.</p>
+      <div class="row"><button id="dodge1">Cari tahu kamu kemana</button><button class="ghost" id="skip">Lanjut baca aja</button></div>
+      <p id="hint" style="margin-top:6px;min-height:24px;color:var(--ink)"></p>
+      <span class="no">1</span>
+    </div></div><div class="back"></div></div>
+
+    <div class="leaf plog"><div class="front"><div class="pg">
+      <h2>Lagi nyari kamu...</h2>
+      <div class="log" id="log"></div>
+      <div class="bar"><i id="fill"></i></div>
+      <p id="load">0%</p>
+      <span class="no">2</span>
+    </div></div><div class="back"></div></div>
+
+    <div class="leaf pq"><div class="front"><div class="pg" style="justify-content:flex-start">
+      <h2>Yang muter di kepala aku</h2>
+      <p>Tap kartunya buat lihat tebakan. Belum ada yang terkonfirmasi, karena orangnya ilang.</p>
+      <div class="q" id="q"></div>
+      <span class="no">3</span>
+    </div></div><div class="back"></div></div>
+
+    <div class="leaf pchat"><div class="front"><div class="pg">
+      <div class="ch"><div class="av">?</div><div><b>Kamu</b><small>terakhir dilihat: entah kapan</small></div></div>
+      <div class="msgs" id="msgs">
+        <div class="m">Hai, lagi apa?</div>
+        <div class="m">Kok sepi sih</div>
+        <div class="m">Kamu baik-baik aja kan?</div>
+        <div class="m">Halo? 👀</div>
+        <div class="seen">Terkirim · belum dibalas</div>
+        <div class="t" aria-label="mengetik"><span></span><span></span><span></span></div>
+        <div class="seen" style="align-self:flex-start">Mengetik dari tadi, tapi ga pernah kekirim</div>
+      </div>
+      <span class="no">4</span>
+    </div></div><div class="back"></div></div>
+
+    <div class="leaf pposter"><div class="front"><div class="pg">
+      <div class="stamp">HILANG</div>
+      <h2>DICARI</h2>
+      <p style="color:#6d1a2c;text-align:center;font-weight:600;margin-top:-4px">Orang yang hilang dari chat</p>
+      <dl style="margin:0">
+        <dt>Ciri-ciri</dt><dd>Awalnya aktif, ramah, bales cepet.</dd>
+        <dt>Kebiasaan</dt><dd>Mendadak ilang tanpa kabar, lalu muncul lagi seolah ga ada apa-apa.</dd>
+        <dt>Terakhir terlihat</dt><dd>Entah di mana. Mungkin sibuk, mungkin tidur, mungkin lupa ada aku.</dd>
+        <dt>Imbalan</dt><dd>Satu pesan singkat: “aku masih hidup kok”.</dd>
+      </dl>
+      <span class="no">5</span>
+    </div></div><div class="back"></div></div>
+
+    <div class="leaf pvote"><div class="front"><div class="pg">
+      <h2>Voting dulu: kamu ilang karena apa?</h2>
+      <div>
+        <button class="opt">Lagi sibuk banget</button>
+        <button class="opt">HP mati atau kuota habis</button>
+        <button class="opt">Lupa bales terus keterusan</button>
+        <button class="opt">Lagi butuh waktu sendiri</button>
+        <button class="opt">Ketiduran sejak kemarin</button>
+      </div>
+      <div class="res" id="res">Semua jawaban valid. Tapi jawaban terbaik tetap yang diketik langsung ke aku, bukan ke polling ini.</div>
+      <span class="no">6</span>
+    </div></div><div class="back"></div></div>
+
+    <div class="leaf pend"><div class="front"><div class="pg">
+      <h2>Jangan ngilang mulu ya.</h2>
+      <p style="max-width:30ch;font-size:17px">Ga harus bales cepet atau panjang-panjang. Cukup kasih kabar, biar aku ga nebak-nebak kamu ada di mana.</p>
+      <div class="row" id="endrow">
+        <button id="yes">Iya, janji ga ngilang lagi</button>
+        <button class="ghost" id="nope">Ga janji</button>
+      </div>
+      <button class="ghost" id="again" style="margin-top:8px;min-height:40px;padding:8px 16px;font-size:14px">Baca dari awal</button>
+      <span class="no">7</span>
+    </div></div><div class="back"></div></div>
+
+  </div>
+  <div class="nav">
+    <button class="ghost" id="prev" aria-label="Halaman sebelumnya">‹</button>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <button id="next" aria-label="Halaman berikutnya">›</button>
+  </div>
+</div>
+
+<div class="pop" id="pop" role="dialog" aria-modal="true"><div>
+  <p style="color:var(--ink);font-weight:800;margin-bottom:6px">Peringatan sistem</p>
+  <p id="popmsg" style="margin-bottom:14px"></p>
+  <button id="popok">Oke, aku bales</button>
+</div></div>
+
+<script>
+var $=function(s){return document.querySelector(s)};
+var L=[].slice.call(document.querySelectorAll('.leaf')),N=L.length,cur=0,fired={};
+for(var d=0;d<N;d++){$('#dots').appendChild(document.createElement('i'))}
+function toast(t){var e=document.createElement('div');e.className='toast';e.textContent=t;var b=$('#toasts');b.appendChild(e);setTimeout(function(){e.remove()},4000);if(b.children.length>2)b.firstChild.remove()}
+
+function go(n){
+  n=Math.max(0,Math.min(N-1,n));cur=n;
+  L.forEach(function(l,i){
+    var f=i<cur,was=l.classList.contains('flipped');
+    clearTimeout(l._t);
+    if(f){l.style.zIndex=100+i}
+    else if(was){l.style.zIndex=100+i;l._t=setTimeout(function(){l.style.zIndex=N-i},950)}
+    else{l.style.zIndex=N-i}
+    l.classList.toggle('flipped',f);
+    l.inert=(i!==cur);
+  });
+  [].forEach.call($('#dots').children,function(x,i){x.className=i===cur?'on':''});
+  $('#prev').disabled=cur===0;$('#next').disabled=cur===N-1;
+  if(cur===1&&!fired.t){fired.t=1;['💬 0 pesan baru dari kamu','🕒 Terakhir online: tidak diketahui','🔍 Status: ngilang (lagi)','😶 Centang dua, ga dibales'].forEach(function(t,i){setTimeout(function(){toast(t)},1000+i*3200)})}
+  if(cur===2&&!fired.l){fired.l=1;loading()}
+  if(cur===4&&!fired.c){fired.c=1;chat()}
+}
+$('#next').onclick=function(){go(cur+1)};
+$('#prev').onclick=function(){go(cur-1)};
+$('#open').onclick=function(){go(1)};
+$('#skip').onclick=function(){go(2)};
+$('#again').onclick=function(){go(0)};
+document.addEventListener('keydown',function(e){if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1)});
+var sx=0,sy=0;
+$('#book').addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+$('#book').addEventListener('touchend',function(e){var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.4)go(cur+(dx<0?1:-1))},{passive:true});
+
+/* tombol kabur */
+var dc=0,d1=$('#dodge1');
+function runAway(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  dc++;
+  if(dc>6){$('#hint').textContent='Oke deh, tombolnya capek kabur-kaburan. Mirip seseorang ya.';d1.style.transform='none';d1.onmouseenter=null;d1.ontouchstart=null;d1.onclick=function(){go(2)};return}
+  var y=(Math.random()-.3)*70,x=(Math.random()-.5)*50;
+  d1.style.transition='transform .25s';d1.style.transform='translate('+x+'px,'+y+'px)';
+  $('#hint').textContent=['Eh, tombolnya ilang.','Kok kabur sih?','Lagi-lagi ilang...','Kejar aja terus.','Masih kabur nih.','Hampir...'][Math.min(dc-1,5)];
+}
+d1.onmouseenter=runAway;d1.ontouchstart=runAway;d1.onclick=runAway;
+
+/* loading ala terminal, nyangkut di 99% */
+function loading(){
+  var m=[[10,'Ngecek chat terakhir...'],[30,'Ngecek status online...'],[55,'Nanya ke angin...'],[78,'Nelpon, ga diangkat...'],[99,'Hampir ketemu...']],i=0;
+  (function step(){
+    if(i<m.length){$('#fill').style.width=m[i][0]+'%';$('#load').textContent=m[i][0]+'%';var r=document.createElement('div');r.textContent='> '+m[i][1];$('#log').appendChild(r);i++;setTimeout(step,1100)}
+    else setTimeout(function(){var r=document.createElement('div');r.style.color='#ff6b81';r.textContent='! Gagal: orangnya ga bisa ditemukan.';$('#log').appendChild(r);$('#load').textContent='99% · Coba lagi kalau kamu mau muncul.'},1400);
+  })();
+}
+
+/* chat muncul satu-satu */
+function chat(){
+  var k=[].slice.call($('#msgs').children);
+  k.forEach(function(e,i){setTimeout(function(){e.classList.add('show')},1000+i*650)});
+}
+
+/* kartu pertanyaan */
+[['Kamu tuh kemana sih?','Mungkin lagi di dunia lain yang sinyalnya cuma buat orang lain.'],
+['Kok ilang gitu aja?','Tanpa pamit, tanpa jejak. Kayak sulap, tapi ga lucu.'],
+['Kenapa ga chat aku lagi?','Jempolnya lagi libur, atau aku udah turun ke dasar daftar chat.'],
+['Kok ga ada kabar sama sekali?','Kabar kamu mungkin nyasar di jalan, belum sampai.'],
+['Lagi sibuk apa sih?','Sibuk boleh, tapi ngetik “hai” kan ga sampai satu menit.'],
+['Aku ada salah ya?','Kalau iya, bilang. Daripada aku overthinking jam 2 pagi.'],
+['Kamu masih inget aku ga?','Aku pengen percaya iya. Tolong buktikan.'],
+['Kapan muncul lagi?','Semoga bukan 3 bulan lagi dengan “maaf baru bales”.']
+].forEach(function(a){var b=document.createElement('button');b.innerHTML=a[0]+'<b>Tap buat lihat tebakan</b>';b.onclick=function(){b.innerHTML=a[0]+'<b>'+a[1]+'</b>'};$('#q').appendChild(b)});
+
+/* polling */
+document.querySelectorAll('.opt').forEach(function(b){b.onclick=function(){document.querySelectorAll('.opt').forEach(function(x){x.classList.remove('on')});b.classList.add('on');$('#res').style.display='block'}});
+
+/* penutup */
+var pop=$('#pop'),nc=0,no=$('#nope');
+var lines=['Yakin? Coba pikir lagi.','Tombol ini juga mau ngilang nih, sama kayak kamu.','Ga janji itu opsi yang ga tersedia.','Maaf, tombol ga janji lagi ngilang.'];
+$('#popok').onclick=function(){pop.style.display='none'};
+function dodgeNo(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  nc++;
+  $('#popmsg').textContent=lines[(nc-1)%lines.length];
+  if(nc%2===0)pop.style.display='flex';
+  no.style.transition='transform .25s';
+  no.style.transform='translate('+(Math.random()-.5)*90+'px,'+(10+Math.random()*60)+'px)';
+  $('#yes').style.transform='scale('+Math.min(1+nc*.04,1.2)+')';
+}
+no.onmouseenter=dodgeNo;no.ontouchstart=dodgeNo;no.onclick=dodgeNo;
+$('#yes').onclick=function(){
+  $('#endrow').innerHTML='<p style="color:var(--ink);font-weight:800;font-size:22px;margin:0;text-align:center">Makasih. Aku catat ya, janjinya sah. 🤍</p>';
+  for(var i=0;i<22;i++)(function(i){setTimeout(function(){var h=document.createElement('div');h.className='heart';h.textContent=['❤️','🤍','🍷'][i%3];h.style.left=Math.random()*90+'vw';document.body.appendChild(h);setTimeout(function(){h.remove()},3200)},i*120)})(i);
+};
+go(0);
+</script>
+</body>
+</html>
